@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic_settings
+asyncpg
+sqlalchemy
+alembic
+psycopg2==2.9.9
