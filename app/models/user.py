@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 from sqlalchemy import Boolean
 
@@ -16,6 +17,9 @@ class User(Base):
     role = Column(String, default='user')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    blogs = relationship("Blog", back_populates="owner")
+    comments = relationship("Comment", back_populates="owner")
 
     @classmethod
     async def get_by_email(cls, db_session, email: str):

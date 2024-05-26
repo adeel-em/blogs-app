@@ -23,18 +23,41 @@ def get_user_by_username(db: Session, username: str) -> User:
     """
     Get a user by username.
     """
-    return db.query(User).filter(User.username == username).first()
+
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User deactivated")
+    
+    return user
 
 def get_user_by_email(db: Session, email: str) -> User:
     """
     Get a user by email.
     """
-    return db.query(User).filter(User.email == email).first()
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User deactivated")
+    
+    return user
 
-def create_user(db: Session, user: UserCreate) -> User:
+def create_user(db: Session, user_in: UserCreate) -> User:
     """
     Create a new user.
     """
+    
+    user_exist = get_user_by_username(db, username=user_in.username)
+    if user_exist:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
+    user = get_user_by_email(db, email=user_in.email)
+    if user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
     db_user = User(
         first_name=user.first_name,
         last_name=user.last_name,

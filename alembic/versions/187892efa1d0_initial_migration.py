@@ -40,6 +40,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('content', sa.Text(), nullable=True),
+    sa.Column('is_published', sa.Boolean(), nullable=False, default=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+    sa.Column('updated_at', sa.DateTime(), nullable=False, default=sa.func.now(), onupdate=sa.func.now()),
     sa.Column('owner_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -47,6 +50,8 @@ def upgrade():
     op.create_table('comments',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+    sa.Column('updated_at', sa.DateTime(), nullable=False, default=sa.func.now(), onupdate=sa.func.now()),
     sa.Column('owner_id', sa.Integer(), nullable=False),
     sa.Column('blog_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['blog_id'], ['blogs.id'], ),
