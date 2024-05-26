@@ -22,14 +22,8 @@ def read_user_by_username(username: str, db: Session = Depends(deps.get_db)):
     """
     Get user by username.
     """
-
-    user = get_user_by_username(db, username=username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="User deactivated")
+    return get_user_by_username(db, username=username)
     
-    return user
 @router.delete("/{username}", response_model=UserInDB)
 def delete_user_by_username(username: str, db: Session = Depends(deps.get_db)):
     """
