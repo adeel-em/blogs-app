@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_password_hash, verify_password, create_access_token
 from fastapi import HTTPException
+from fastapi import Response
 
 
 
@@ -84,6 +85,11 @@ def login_user(db: Session, username: str, password: str) -> User:
     
     if not verify_password(password, user.password):
         raise HTTPException(status_code=400, detail="Incorrect password")
+    
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User deactivated")
+    
+    user.token = create_access_token(data={"sub": user.username})
     
     return user
 
