@@ -21,7 +21,9 @@ def login_user_endpoint(user_in:  UserLogin, db: Session = Depends(deps.get_db))
 
     response = Response()
 
-    response.set_cookie(key="auth_token", value=user.token)
+
+    response.set_cookie(key="auth_token", value=user.token, max_age=7200, httponly=True)
+
     response.status_code = 200
     response.data = {"user": user}
     return response
