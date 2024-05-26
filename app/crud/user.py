@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.core.security import get_password_hash, verify_password
 from fastapi import HTTPException
 
 
@@ -58,17 +59,33 @@ def create_user(db: Session, user_in: UserCreate) -> User:
     if user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    hashed_password = get_password_hash(user_in.password)
+
     db_user = User(
         first_name=user.first_name,
         last_name=user.last_name,
         username=user.username,
         email=user.email,
-        password=user.password
+        password=hashed_password,
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def login_user(db: Session, username: str, password: str) -> User:
+    """
+    Login a user.
+    """
+    
+    user = get_user_by_username(db, username=username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not verify_password(password, user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    
+    return user
 
 def update_user(db: Session, username: str, user: UserUpdate) -> User:
     """

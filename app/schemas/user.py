@@ -7,6 +7,11 @@ class UserBase(BaseModel):
     email: EmailStr
     role: str
 
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 class UserCreate(UserBase):
     password: str
 
@@ -22,4 +27,7 @@ class User(UserBase):
 
 class UserInDB(User):
     pass
+
+class UserInResponse(User):
+    token: str
 

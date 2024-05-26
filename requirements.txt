@@ -4,4 +4,6 @@ pydantic_settings
 asyncpg
 sqlalchemy
 alembic
+bcrypt
+passlib
 psycopg2==2.9.9

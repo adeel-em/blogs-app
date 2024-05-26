@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserInDB
-from app.crud.user import create_user, get_user_by_username, get_user_by_email
+from app.schemas.user import UserCreate, UserInDB, UserInResponse, UserLogin
+from app.crud.user import create_user, login_user
 from app.api import deps
 
 router = APIRouter()
@@ -13,9 +13,9 @@ def register_user_endpoint(user_in:  UserCreate, db: Session = Depends(deps.get_
     """
     return create_user(db, user_in)
 
-@router.post("/login", response_model=UserInDB)
-def login_user_endpoint(user_in:  UserCreate, db: Session = Depends(deps.get_db)):
+@router.post("/login", response_model=UserInResponse)
+def login_user_endpoint(user_in:  UserLogin, db: Session = Depends(deps.get_db)):
     """
     Login a user.
     """
-    return get_user_by_username(db, username=user_in.username)
+    return login_user(db, user_in.username, user_in.password)
