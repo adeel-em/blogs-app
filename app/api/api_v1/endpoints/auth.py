@@ -6,14 +6,17 @@ from app.api import deps
 
 router = APIRouter()
 
+
 @router.post("/register", response_model=UserInDB)
-def register_user_endpoint(user_in:  UserCreate, db: Session = Depends(deps.get_db)):
+def register_user_endpoint(user_in: UserCreate, db: Session = Depends(deps.get_db)):
     """
     Register a new user.
     """
     return create_user(db, user_in)
+
+
 @router.post("/login", response_model=UserInResponse)
-def login_user_endpoint(user_in:  UserLogin, db: Session = Depends(deps.get_db)):
+def login_user_endpoint(user_in: UserLogin, db: Session = Depends(deps.get_db)):
     """
     Login a user.
     """
@@ -21,9 +24,8 @@ def login_user_endpoint(user_in:  UserLogin, db: Session = Depends(deps.get_db))
 
     response = Response()
 
-
     response.set_cookie(key="auth_token", value=user.token, max_age=7200, httponly=True)
 
     response.status_code = 200
-    response.data = {"user": user}
+    response.data = {"user": user, "access_token": user.token, "token_type": "bearer"}
     return response

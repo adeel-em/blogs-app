@@ -1,6 +1,18 @@
 from typing import Generator
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from app.core.security import decode_access_token
+from app.crud.user import get_user_by_username
+from jose import JWTError, jwt
+from app.models.user import User
+from starlette.status import HTTP_401_UNAUTHORIZED
+from app.core.constants import UserRole
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
+
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -12,3 +24,80 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def get_current_user(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme),
+    alowed_roles: list[UserRole] = [],
+) -> User:
+    """
+    Dependency that returns the current user from the database.
+    """
+
+    try:
+        if not token:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED, detail="No authorization header"
+            )
+
+        payload = decode_access_token(token)
+        username: str = payload.get("username")
+        if username is None:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+    except JWTError:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED, detail="Could not validate credentials"
+        )
+
+    user = get_user_by_username(db, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.role not in alowed_roles:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED, detail="Not enough permissions"
+        )
+
+    return user
+
+
+def admin_and_author(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(db, token, [UserRole.ADMIN, UserRole.AUTHOR])
+
+
+def admin_and_reader(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(db, token, [UserRole.ADMIN, UserRole.READER])
+
+
+def all_roles(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(
+        db, token, [UserRole.ADMIN, UserRole.AUTHOR, UserRole.READER]
+    )
+
+
+def admin_only(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(db, token, [UserRole.ADMIN])
+
+
+def author_only(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(db, token, [UserRole.AUTHOR])
+
+
+def reader_only(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+) -> User:
+    return get_current_user(db, token, [UserRole.READER])
