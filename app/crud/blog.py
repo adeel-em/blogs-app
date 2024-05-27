@@ -83,7 +83,9 @@ def create_blog(db: Session, blog: BlogCreate) -> Blog:
     """
     Create a new blog.
     """
-    db_blog = Blog(title=blog.title, content=blog.content, owner_id=blog.owner_id)
+    db_blog = Blog(
+        title=blog.title, content=blog.content, tags=blog.tags, owner_id=blog.owner_id
+    )
     db.add(db_blog)
     db.commit()
     db.refresh(db_blog)
@@ -101,6 +103,7 @@ def update_blog(db: Session, blog_id: int, blog: BlogUpdate) -> Blog:
 
     db_blog.title = blog.title
     db_blog.content = blog.content
+    db_blog.tags = blog.tags
     db_blog.is_published = blog.is_published
     db.commit()
     db.refresh(db_blog)
