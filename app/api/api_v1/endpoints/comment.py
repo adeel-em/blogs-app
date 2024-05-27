@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.schemas.comment import CommentCreate, CommentUpdate, Comment, CommentInDB
+from app.schemas.comment import CommentCreate, CommentUpdate, CommentInDB
+from app.limiter import limiter
 from app.crud.comment import (
     create_comment,
     get_comment,
@@ -19,7 +20,9 @@ router = APIRouter()
 
 
 @router.post("/", response_model=CommentInDB)
+@limiter.limit("100/minute")
 def create_comment_endpoint(
+    request: Request,
     comment_in: CommentCreate,
     db: Session = Depends(get_db),
     current_user: CommentInDB = Depends(reader_only),
@@ -31,7 +34,9 @@ def create_comment_endpoint(
 
 
 @router.put("/{comment_id}", response_model=CommentInDB)
+@limiter.limit("100/minute")
 def update_comment_endpoint(
+    request: Request,
     comment_id: int,
     comment_update: CommentUpdate,
     db: Session = Depends(get_db),
@@ -45,7 +50,9 @@ def update_comment_endpoint(
 
 
 @router.get("/{comment_id}", response_model=CommentInDB)
+@limiter.limit("100/minute")
 def read_comment(
+    request: Request,
     comment_id: int,
     db: Session = Depends(get_db),
     current_user: CommentInDB = Depends(all_roles),
@@ -59,7 +66,9 @@ def read_comment(
 
 
 @router.get("/", response_model=list[CommentInDB])
+@limiter.limit("100/minute")
 def read_comments(
+    request: Request,
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db),
@@ -72,7 +81,9 @@ def read_comments(
 
 
 @router.delete("/{comment_id}", response_model=CommentInDB)
+@limiter.limit("100/minute")
 def delete_comment_endpoint(
+    request: Request,
     comment_id: int,
     db: Session = Depends(get_db),
     current_user: CommentInDB = Depends(admin_and_reader),
@@ -81,6 +92,3 @@ def delete_comment_endpoint(
     Delete comment by id.
     """
     return delete_comment(db, comment_id)
-
-
-# Path: app/api/api_v1/endpoints/user.py

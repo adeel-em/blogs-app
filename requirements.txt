@@ -8,3 +8,4 @@ bcrypt
 passlib
 python-jose
 psycopg2==2.9.9
+slowapi
