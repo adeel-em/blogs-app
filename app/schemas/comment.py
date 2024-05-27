@@ -1,14 +1,18 @@
 from pydantic import BaseModel
 
+
 class CommentBase(BaseModel):
     blog_id: int
     owner_id: int
 
+
 class CommentUpdate(CommentBase):
     content: str
 
+
 class CommentCreate(CommentUpdate):
     pass
+
 
 class Comment(CommentBase):
     id: int
@@ -19,7 +23,6 @@ class Comment(CommentBase):
     class Config:
         orm_mode = True
 
+
 class CommentInDB(Comment):
     pass
-
-

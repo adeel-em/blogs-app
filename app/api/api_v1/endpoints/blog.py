@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas.blog import BlogCreate, BlogUpdate, Blog, BlogInDB
+from app.schemas.blog import BlogCreate, BlogUpdate, Blog, BlogInDB, BlogWithPagination
 from app.crud.blog import create_blog, get_blog, get_blogs, update_blog, delete_blog
 from app.api.deps import get_db, all_roles, admin_and_author, author_only
 
@@ -48,17 +48,24 @@ def read_blog(
     return blog
 
 
-@router.get("/", response_model=list[BlogInDB])
+@router.get("/", response_model=BlogWithPagination)
 def read_blogs(
-    skip: int = 0,
+    page: int = 1,
     limit: int = 10,
+    search: str = None,
+    is_published: bool = None,
+    created_from: str = None,
+    created_to: str = None,
+    author_id: int = None,
     db: Session = Depends(get_db),
     current_user: BlogInDB = Depends(all_roles),
 ):
     """
     Get all blogs.
     """
-    return get_blogs(db, skip, limit)
+    return get_blogs(
+        db, page, limit, search, is_published, created_from, created_to, author_id
+    )
 
 
 @router.delete("/{blog_id}", response_model=BlogInDB)

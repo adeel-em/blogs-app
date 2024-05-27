@@ -18,11 +18,41 @@ def get_blog(db: Session, blog_id: int) -> Blog:
     return blog
 
 
-def get_blogs(db: Session, skip: int = 0, limit: int = 10):
+def get_blogs(
+    db: Session,
+    page: int = 1,
+    limit: int = 10,
+    search: str = None,
+    is_published: bool = None,
+    created_from: str = None,
+    created_to: str = None,
+    author_id: int = None,
+):
     """
     Get all blogs.
     """
-    return db.query(Blog).offset(skip).limit(limit).all()
+
+    query = db.query(Blog)
+
+    if search:
+        query = query.filter(Blog.tags.ilike(f"%{search}%"))
+
+    if is_published is not None:
+        query = query.filter(Blog.is_published == is_published)
+
+    if created_from:
+        query = query.filter(Blog.created_at >= created_from)
+
+    if created_to:
+        query = query.filter(Blog.created_at <= created_to)
+
+    if author_id:
+        query = query.filter(Blog.owner_id == author_id)
+
+    total = query.count()
+    data = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {"data": data, "total": total, "page": page, "limit": limit}
 
 
 def get_blogs_by_owner_id(db: Session, owner_id: int):
