@@ -6,6 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded
 from app.limiter import limiter
+from app.core.redis import on_shutdown
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -22,6 +23,8 @@ app.add_middleware(SlowAPIMiddleware)
 
 app = FastAPI()
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+app.add_event_handler("shutdown", on_shutdown)
 
 
 @app.on_event("startup")
