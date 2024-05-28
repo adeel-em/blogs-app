@@ -1,5 +1,7 @@
 ## Blog Application
 
+Developed by: Muhammad Adeel
+
 ## Setup python version
 
 To install and manage Python versions using pyenv, you can follow these steps:
