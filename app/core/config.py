@@ -17,6 +17,7 @@ class Settings(BaseSettings):
         "postgresql://postgres:admin@localhost:5432/blogs_app",
     )
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "")
 
     class Config:
         env_file = ".env"
