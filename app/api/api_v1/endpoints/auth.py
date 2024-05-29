@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/register", response_model=UserInDB)
-@limiter.limit("5/minute")
+@limiter.limit("50/minute")
 def register_user_endpoint(
     request: Request, user_in: UserCreate, db: Session = Depends(deps.get_db)
 ):

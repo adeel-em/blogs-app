@@ -3,6 +3,9 @@ from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 from sqlalchemy import Boolean
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped
 
 
 class Blog(Base):
@@ -15,7 +18,7 @@ class Blog(Base):
     tags = Column(String, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    owner_id = Column(Integer, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="blogs")
     comments = relationship("Comment", back_populates="blog")

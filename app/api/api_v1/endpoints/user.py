@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserInDB
 from app.crud.user import get_user_by_username, update_user, deactivate_user
@@ -29,7 +29,12 @@ def read_user_by_username(
     """
     Get user by username.
     """
-    return get_user_by_username(db, current_user.username)
+    user = get_user_by_username(db, current_user.username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User deactivated")
+    return
 
 
 @router.delete("/{username}", response_model=UserInDB)

@@ -24,13 +24,7 @@ def get_user_by_username(db: Session, username: str) -> User:
     Get a user by username.
     """
 
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="User deactivated")
-
-    return user
+    return db.query(User).filter(User.username == username).first()
 
 
 def get_user_by_email(db: Session, email: str) -> User:
@@ -38,13 +32,7 @@ def get_user_by_email(db: Session, email: str) -> User:
     Get a user by email.
     """
 
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="User deactivated")
-
-    return user
+    return db.query(User).filter(User.email == email).first()
 
 
 def create_user(db: Session, user_in: UserCreate) -> User:
@@ -63,10 +51,10 @@ def create_user(db: Session, user_in: UserCreate) -> User:
     hashed_password = get_password_hash(user_in.password)
 
     db_user = User(
-        first_name=user.first_name,
-        last_name=user.last_name,
-        username=user.username,
-        email=user.email,
+        first_name=user_in.first_name,
+        last_name=user_in.last_name,
+        username=user_in.username,
+        email=user_in.email,
         password=hashed_password,
     )
     db.add(db_user)
@@ -81,6 +69,7 @@ def login_user(db: Session, username: str, password: str) -> User:
     """
 
     user = get_user_by_username(db, username=username)
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -123,7 +112,7 @@ def deactivate_user(db: Session, username: str) -> User:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    db_user = db.query(User).filter(User.username == username).first()
+    db_user = db.query(User).filter(User.username == user.username).first()
     db_user.is_active = False
     db.commit()
     db.refresh(db_user)

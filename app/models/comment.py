@@ -3,6 +3,8 @@ from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 from sqlalchemy import Boolean
+from sqlalchemy import ForeignKey
+
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -11,10 +13,10 @@ class Comment(Base):
     content = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    owner_id = Column(Integer, index=True)
-    blog_id = Column(Integer, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    blog_id = Column(Integer, ForeignKey("blogs.id"))
 
     owner = relationship("User", back_populates="comments")
     blog = relationship("Blog", back_populates="comments")
-    
+
     # This is a class method that

@@ -42,7 +42,7 @@ def get_current_user(
             )
 
         payload = decode_access_token(token)
-        username: str = payload.get("username")
+        username: str = payload.get("sub")
         if username is None:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
