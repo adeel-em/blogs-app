@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class BlogBase(BaseModel):
@@ -8,18 +9,19 @@ class BlogBase(BaseModel):
 
 
 class BlogCreate(BlogBase):
-    owner_id: int
+    pass
 
 
 class BlogUpdate(BlogBase):
-    is_published: bool
+    title: Optional[str] = None
+    content: Optional[str] = None
+    tags: Optional[str] = None
+    is_published: Optional[bool] = None
 
 
 class Blog(BlogBase):
     id: int
     owner_id: int
-    created_at: str
-    updated_at: str
 
     class Config:
         from_attributes = True
