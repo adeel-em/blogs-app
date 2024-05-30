@@ -12,13 +12,15 @@ class Blog(Base):
     __tablename__ = "blogs"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(2000), nullable=False, default="No title")
-    content = Column(String, nullable=True, default="")
+    title = Column(String, index=True)
+    content = Column(String)
     is_published = Column(Boolean, default=True)
-    tags = Column(String(255), default="")
+    tags = Column(String, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="blogs")
     comments = relationship("Comment", back_populates="blog")
+
+    # This is a class method that

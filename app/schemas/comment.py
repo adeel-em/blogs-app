@@ -2,21 +2,23 @@ from pydantic import BaseModel
 
 
 class CommentBase(BaseModel):
-    content: str
     blog_id: int
+    owner_id: int
 
 
-class CommentUpdate(BaseModel):
+class CommentUpdate(CommentBase):
     content: str
 
 
-class CommentCreate(CommentBase):
+class CommentCreate(CommentUpdate):
     pass
 
 
 class Comment(CommentBase):
     id: int
     content: str
+    created_at: str
+    updated_at: str
 
     class Config:
         from_attributes = True
@@ -24,10 +26,3 @@ class Comment(CommentBase):
 
 class CommentInDB(Comment):
     pass
-
-
-class CommentWithPagination(BaseModel):
-    data: list[Comment]
-    total: int
-    page: int
-    limit: int

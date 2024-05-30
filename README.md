@@ -54,7 +54,7 @@ source venv\Scripts\activate
 ### Install packages for fastapi
 
 ```shell
-pip install -r requirements.txt
+pip install -r requirements. txt
 
 ```
 
@@ -97,27 +97,3 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 pytest
 
 ```
-
-## Run the application
-
-Open swagger UI on this url:
-
-```shell
-
-http://localhost:8000/docs
-
-```
-
-Follow steps below to to run blog application
-
-### Step: 1
-
-Use register api and create a new user with admin, author or reader role
-
-### Step: 2
-
-Click on Authorize button and provide your username and password
-
-### Step: 3
-
-Now you can create, update, read and delete comments and blogs

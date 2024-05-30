@@ -1,11 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.schemas.comment import (
-    CommentCreate,
-    CommentUpdate,
-    CommentInDB,
-    CommentWithPagination,
-)
+from app.schemas.comment import CommentCreate, CommentUpdate, CommentInDB
 from app.limiter import limiter
 from app.crud.comment import (
     create_comment,
@@ -35,7 +30,7 @@ def create_comment_endpoint(
     """
     Create a new comment.
     """
-    return create_comment(db, comment_in, current_user)
+    return create_comment(db, comment_in)
 
 
 @router.put("/{comment_id}", response_model=CommentInDB)
@@ -50,7 +45,7 @@ def update_comment_endpoint(
     """
     Update comment by id.
     """
-    updated_comment = update_comment(db, comment_id, comment_update, current_user)
+    updated_comment = update_comment(db, comment_id, comment_update)
     return updated_comment
 
 
@@ -70,20 +65,19 @@ def read_comment(
     return comment
 
 
-@router.get("/", response_model=CommentWithPagination)
+@router.get("/", response_model=list[CommentInDB])
 @limiter.limit("100/minute")
 def read_comments(
     request: Request,
-    page: int = 1,
+    skip: int = 0,
     limit: int = 10,
-    blog_id: int = 0,
     db: Session = Depends(get_db),
     current_user: CommentInDB = Depends(all_roles),
 ):
     """
     Get all comments.
     """
-    return get_comments(db, page, limit, blog_id)
+    return get_comments(db, skip, limit)
 
 
 @router.delete("/{comment_id}", response_model=CommentInDB)
@@ -97,4 +91,4 @@ def delete_comment_endpoint(
     """
     Delete comment by id.
     """
-    return delete_comment(db, comment_id, current_user)
+    return delete_comment(db, comment_id)

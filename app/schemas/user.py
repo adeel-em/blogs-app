@@ -1,11 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from enum import Enum
-
-
-class RoleEnum(str, Enum):
-    reader = "reader"
-    admin = "admin"
-    author = "author"
 
 
 class UserBase(BaseModel):
@@ -13,10 +6,7 @@ class UserBase(BaseModel):
     last_name: str
     username: str
     email: EmailStr
-    role: RoleEnum
-
-    class Config:
-        use_enum_values = True
+    role: str
 
 
 class UserLogin(BaseModel):
@@ -24,7 +14,11 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserCreateUpdate(UserBase):
+class UserCreate(UserBase):
+    password: str
+
+
+class UserUpdate(UserBase):
     password: str
 
 

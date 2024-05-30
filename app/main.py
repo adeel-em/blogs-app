@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from app.api.v1.api import api_router
+from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.db.session import engine, Base
-from slowapi import _rate_limit_exceeded_handler
+from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded
 from app.limiter import limiter
@@ -20,6 +20,8 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
+
+app = FastAPI()
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 app.add_event_handler("shutdown", on_shutdown)
