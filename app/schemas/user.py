@@ -49,3 +49,13 @@ class UserWithPagination(BaseModel):
     total: int
     page: int
     limit: int
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenRequest(BaseModel):
+    username: str
+    password: str

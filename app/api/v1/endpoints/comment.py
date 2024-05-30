@@ -20,12 +20,13 @@ from app.api.deps import (
     reader_only,
     admin_and_reader,
 )
+from app.core.config import settings
 
 router = APIRouter()
 
 
 @router.post("/", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def create_comment_endpoint(
     request: Request,
     comment_in: CommentCreate,
@@ -39,7 +40,7 @@ def create_comment_endpoint(
 
 
 @router.put("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def update_comment_endpoint(
     request: Request,
     comment_id: int,
@@ -55,7 +56,7 @@ def update_comment_endpoint(
 
 
 @router.get("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def read_comment(
     request: Request,
     comment_id: int,
@@ -71,7 +72,7 @@ def read_comment(
 
 
 @router.get("/", response_model=CommentWithPagination)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def read_comments(
     request: Request,
     page: int = 1,
@@ -87,7 +88,7 @@ def read_comments(
 
 
 @router.delete("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def delete_comment_endpoint(
     request: Request,
     comment_id: int,

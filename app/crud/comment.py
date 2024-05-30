@@ -116,7 +116,7 @@ def delete_comment(db: Session, comment_id: int, current_user: User):
     """
 
     try:
-        if current_user.role == UserRole.ADMIN:
+        if current_user.role.value == UserRole.ADMIN:
             db_comment = get_comment(db, comment_id)
         else:
             db_comment = get_comment_by_owner_id(db, comment_id, current_user.id)

@@ -5,6 +5,7 @@ from app.crud.blog import create_blog, get_blog, get_blogs, update_blog, delete_
 from app.api.deps import get_db, all_roles, admin_and_author, author_only
 from app.limiter import limiter
 from app.core.redis import RedisClient
+from app.core.config import settings
 import json
 
 
@@ -12,7 +13,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=BlogInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def create_blog_endpoint(
     request: Request,
     blog_in: BlogCreate,
@@ -26,7 +27,7 @@ def create_blog_endpoint(
 
 
 @router.put("/{blog_id}", response_model=BlogInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def update_blog_endpoint(
     request: Request,
     blog_id: int,
@@ -42,7 +43,7 @@ def update_blog_endpoint(
 
 
 @router.get("/{blog_id}", response_model=BlogInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def read_blog(
     request: Request,
     blog_id: int,
@@ -58,7 +59,7 @@ def read_blog(
 
 
 @router.get("/", response_model=BlogWithPagination)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 async def read_blogs(
     request: Request,
     page: int = 1,
@@ -98,7 +99,7 @@ async def read_blogs(
 
 
 @router.delete("/{blog_id}", response_model=BlogInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def delete_blog_endpoint(
     request: Request,
     blog_id: int,

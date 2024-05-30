@@ -96,7 +96,7 @@ def login_user(db: Session, username: str, password: str) -> User:
         if not user.is_active:
             raise HTTPException(status_code=400, detail="User deactivated")
 
-        user.token = create_access_token(data={"sub": user.username})
+        user.token = create_access_token(data={"username": user.username})
 
         return user
     except Exception as e:

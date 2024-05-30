@@ -48,7 +48,7 @@ def get_current_user(
                 status_code=HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
             )
 
-        username: str = payload.get("sub")
+        username: str = payload.get("username")
         if username is None:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
@@ -64,11 +64,10 @@ def get_current_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     try:
-        role = user.role.__dict__.get("_value_")
-        if role not in alowed_roles:
+        if user.role.value not in alowed_roles:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
-                detail=f"Not enough permissions: Only {', '.join(str(role) for role in alowed_roles)} can access this resource",
+                detail=f"Not enough permissions",
             )
         return user
     except Exception as e:

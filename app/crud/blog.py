@@ -134,7 +134,7 @@ def delete_blog(db: Session, blog_id: int, current_user: User):
     """
 
     try:
-        if current_user.role == UserRole.ADMIN:
+        if current_user.role.value == UserRole.ADMIN:
             db_blog = get_blog(db, blog_id)
         else:
             db_blog = get_blog_by_owner_id(db, blog_id, current_user.id)
