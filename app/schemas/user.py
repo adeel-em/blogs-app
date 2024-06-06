@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from enum import Enum
 
 
-class RoleEnum(str, Enum):
+class RoleEnum(Enum):
     reader = "reader"
     admin = "admin"
     author = "author"
