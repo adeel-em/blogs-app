@@ -1,6 +1,11 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.schemas.comment import CommentCreate, CommentUpdate, CommentInDB
+from app.schemas.comment import (
+    CommentCreate,
+    CommentUpdate,
+    CommentInDB,
+    CommentWithPagination,
+)
 from app.limiter import limiter
 from app.crud.comment import (
     create_comment,
@@ -15,12 +20,13 @@ from app.api.deps import (
     reader_only,
     admin_and_reader,
 )
+from app.core.config import settings
 
 router = APIRouter()
 
 
 @router.post("/", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def create_comment_endpoint(
     request: Request,
     comment_in: CommentCreate,
@@ -30,11 +36,11 @@ def create_comment_endpoint(
     """
     Create a new comment.
     """
-    return create_comment(db, comment_in)
+    return create_comment(db, comment_in, current_user)
 
 
 @router.put("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def update_comment_endpoint(
     request: Request,
     comment_id: int,
@@ -45,12 +51,12 @@ def update_comment_endpoint(
     """
     Update comment by id.
     """
-    updated_comment = update_comment(db, comment_id, comment_update)
+    updated_comment = update_comment(db, comment_id, comment_update, current_user)
     return updated_comment
 
 
 @router.get("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def read_comment(
     request: Request,
     comment_id: int,
@@ -65,23 +71,24 @@ def read_comment(
     return comment
 
 
-@router.get("/", response_model=list[CommentInDB])
-@limiter.limit("100/minute")
+@router.get("/", response_model=CommentWithPagination)
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def read_comments(
     request: Request,
-    skip: int = 0,
+    page: int = 1,
     limit: int = 10,
+    blog_id: int = 0,
     db: Session = Depends(get_db),
     current_user: CommentInDB = Depends(all_roles),
 ):
     """
     Get all comments.
     """
-    return get_comments(db, skip, limit)
+    return get_comments(db, page, limit, blog_id)
 
 
 @router.delete("/{comment_id}", response_model=CommentInDB)
-@limiter.limit("100/minute")
+@limiter.limit(f"{settings.MAX_REQUESTS_COUNT}/minute")
 def delete_comment_endpoint(
     request: Request,
     comment_id: int,
@@ -91,4 +98,4 @@ def delete_comment_endpoint(
     """
     Delete comment by id.
     """
-    return delete_comment(db, comment_id)
+    return delete_comment(db, comment_id, current_user)

@@ -5,13 +5,13 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from app.core.security import decode_access_token
 from app.crud.user import get_user_by_username
-from jose import JWTError, jwt
+from jose import JWTError
 from app.models.user import User
 from starlette.status import HTTP_401_UNAUTHORIZED
 from app.core.constants import UserRole
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -42,7 +42,13 @@ def get_current_user(
             )
 
         payload = decode_access_token(token)
-        username: str = payload.get("sub")
+
+        if payload is None:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+            )
+
+        username: str = payload.get("username")
         if username is None:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
@@ -57,12 +63,15 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if user.role not in alowed_roles:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED, detail="Not enough permissions"
-        )
-
-    return user
+    try:
+        if user.role.value not in alowed_roles:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail=f"Not enough permissions",
+            )
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 def admin_and_author(

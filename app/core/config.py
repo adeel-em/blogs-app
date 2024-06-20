@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     )
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     TEST_DATABASE_URL: str = os.getenv("TEST_DATABASE_URL", "")
+    MAX_AUTH_REQUESTS_COUNT: int = os.getenv("MAX_REQUESTS_COUNT", 5)
+    MAX_REQUESTS_COUNT: int = os.getenv("MAX_REQUESTS_COUNT", 100)
 
     class Config:
         env_file = ".env"

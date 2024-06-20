@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserInDB
+from app.schemas.user import UserCreateUpdate, UserInDB
 from app.crud.user import get_user_by_username, update_user, deactivate_user
 from app.api.deps import get_db, all_roles
 
@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.put("/{username}", response_model=UserInDB)
 def update_user_by_username(
-    user_update: UserCreate,
+    user_update: UserCreateUpdate,
     db: Session = Depends(get_db),
     current_user: UserInDB = Depends(all_roles),
 ):
