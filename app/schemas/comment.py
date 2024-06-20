@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -11,12 +12,13 @@ class CommentUpdate(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    pass
+    parent_id: Optional[int] = None
 
 
 class Comment(CommentBase):
     id: int
     content: str
+    replies: list["Comment"] = []
 
     class Config:
         from_attributes = True

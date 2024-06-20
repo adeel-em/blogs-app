@@ -79,6 +79,7 @@ def upgrade():
         ),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.Column("blog_id", sa.Integer(), nullable=False),
+        sa.Column("parent_id", sa.Integer(), nullable=True, default=None),
         sa.ForeignKeyConstraint(
             ["blog_id"],
             ["blogs.id"],

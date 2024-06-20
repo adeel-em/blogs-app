@@ -27,9 +27,9 @@ def get_comments(db: Session, page: int = 0, limit: int = 10, blog_id: int = 0):
     try:
 
         skip = (page - 1) * limit
-        query = db.query(Comment)
+        query = db.query(Comment).filter(Comment.parent_id == None)
         if blog_id != 0:
-            query = query.filter(Comment.blog_id == blog_id)
+            query = query.filter(Comment.blog_id == blog_id, Comment.parent_id == None)
         data = query.offset(skip).limit(limit).all()
         total = query.count()
 
@@ -77,8 +77,19 @@ def create_comment(db: Session, comment: CommentCreate, current_user: User) -> C
         if not blog:
             raise HTTPException(status_code=404, detail="Blog not found")
 
+        parent_comment = None
+        if comment.parent_id:
+            parent_comment = get_comment_by_owner_id(
+                db, comment.parent_id, current_user.id
+            )
+            if not parent_comment:
+                raise HTTPException(status_code=404, detail="Parent comment not found")
+
         db_comment = Comment(
-            content=comment.content, owner_id=current_user.id, blog_id=comment.blog_id
+            content=comment.content,
+            owner_id=current_user.id,
+            blog_id=comment.blog_id,
+            parent_id=comment.parent_id,
         )
         db.add(db_comment)
         db.commit()
